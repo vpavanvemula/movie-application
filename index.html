@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMax - Interactive Movie Booking</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --primary-color: #e50914;
+            --primary-hover: #b20710;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --seat-available: #444451;
+            --seat-selected: #6feaf6;
+            --seat-occupied: #2a2a35;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .movie-selection {
+            margin-bottom: 20px;
+        }
+
+        .movie-selection label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .movie-selection select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background-color: #2a2a35;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .screen {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.05));
+            height: 70px;
+            width: 100%;
+            border-radius: 50% 50% 0 0 / 15% 15% 0 0;
+            transform: perspective(300px) rotateX(-15deg);
+            box-shadow: 0 3px 10px rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .cinema-seats {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .seat {
+            width: 30px;
+            height: 30px;
+            background-color: var(--seat-available);
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .seat.selected {
+            background-color: var(--seat-selected);
+        }
+
+        .seat.occupied {
+            background-color: var(--seat-occupied);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .seat:not(.occupied):hover {
+            transform: scale(1.1);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            padding: 10px 0;
+            border-top: 1px solid #2a2a35;
+            border-bottom: 1px solid #2a2a35;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend .seat {
+            width: 16px;
+            height: 16px;
+            cursor: default;
+        }
+
+        .booking-summary {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .booking-summary span {
+            color: var(--seat-selected);
+            font-weight: bold;
+        }
+
+        .book-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .book-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .book-btn:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CineMax</h1>
+        <p>Select your movie and preferred seats</p>
+    </header>
+
+    <div class="container">
+        <!-- Movie Dropdown -->
+        <div class="movie-selection">
+            <label for="movie">Pick a Movie:</label>
+            <select id="movie">
+                <option value="12">Interstellar (₹12.00 / $12)</option>
+                <option value="10">Avatar: The Way of Water (₹10.00 / $10)</option>
+                <option value="15">Avengers: Endgame (₹15.00 / $15)</option>
+                <option value="8">The Batman (₹8.00 / $8)</option>
+            </select>
+        </div>
+
+        <!-- Legend -->
+        <ul class="legend">
+            <li><div class="seat"></div> Available</li>
+            <li><div class="seat selected"></div> Selected</li>
+            <li><div class="seat occupied"></div> Occupied</li>
+        </ul>
+
+        <!-- Screen -->
+        <div class="screen">Screen This Way</div>
+
+        <!-- Seats Layout -->
+        <div class="cinema-seats" id="seatContainer">
+            <!-- Rows will be dynamically generated via JavaScript -->
+        </div>
+
+        <!-- Summary -->
+        <div class="booking-summary">
+            <p>You have selected <span id="count">0</span> seats for a total of $<span id="total">0</span></p>
+        </div>
+
+        <!-- Action Button -->
+        <button id="bookBtn" class="book-btn" disabled>Book Now</button>
+    </div>
+
+    <script>
+        const seatContainer = document.getElementById('seatContainer');
+        const movieSelect = document.getElementById('movie');
+        const countDisplay = document.getElementById('count');
+        const totalDisplay = document.getElementById('total');
+        const bookBtn = document.getElementById('bookBtn');
+
+        let ticketPrice = +movieSelect.value;
+
+        // Generate Grid of Seats (5 rows x 8 columns)
+        const rows = 5;
+        const cols = 8;
+        // Mock some occupied seats randomly or predefined
+        const occupiedSeats = [2, 11, 24, 30]; 
+
+        let seatIndex = 0;
+        for (let r = 0; r < rows; r++) {
+            const rowDiv = document.createElement('div');
+            rowDiv.classList.add('row');
+
+            for (let c = 0; c < cols; c++) {
+                const seat = document.createElement('div');
+                seat.classList.add('seat');
+                
+                if (occupiedSeats.includes(seatIndex)) {
+                    seat.classList.add('occupied');
+                }
+
+                rowDiv.appendChild(seat);
+                seatIndex++;
+            }
+            seatContainer.appendChild(rowDiv);
+        }
+
+        const seats = document.querySelectorAll('.cinema-seats .seat:not(.occupied)');
+
+        // Update total and count
+        function updateSelectedCount() {
+            const selectedSeats = document.querySelectorAll('.cinema-seats .seat.selected');
+            const selectedCount = selectedSeats.length;
+
+            countDisplay.innerText = selectedCount;
+            totalDisplay.innerText = (selectedCount * ticketPrice).toFixed(2);
+            
+            if (selectedCount > 0) {
+                bookBtn.removeAttribute('disabled');
+            } else {
+                bookBtn.setAttribute('disabled', 'true');
+            }
+        }
+
+        // Movie select event
+        movieSelect.addEventListener('change', e => {
+            ticketPrice = +e.target.value;
+            updateSelectedCount();
+        });
+
+        // Seat click event
+        seatContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('seat') && !e.target.classList.contains('occupied')) {
+                e.target.classList.toggle('selected');
+                updateSelectedCount();
+            }
+        });
+
+        // Booking simulation action
+        bookBtn.addEventListener('click', () => {
+            const selectedSeats = document.querySelectorAll('.cinema-seats .seat.selected');
+            alert(`Successfully booked ${selectedSeats.length} seat(s) for a total of $${totalDisplay.innerText}! Enjoy your movie.`);
+            
+            // Mark selected seats as occupied permanently for this session
+            selectedSeats.forEach(seat => {
+                seat.classList.remove('selected');
+                seat.classList.add('occupied');
+            });
+
+            updateSelectedCount();
+        });
+    </script>
+</body>
+</html>
